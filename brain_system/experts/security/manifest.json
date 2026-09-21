@@ -1,0 +1,8 @@
+{
+  "expert": "security",
+  "base_model": "../../seed_brain",
+  "model_path": "../../seed_brain",
+  "adapter_path": "model",
+  "training_data": "training.jsonl",
+  "status": "untrained"
+}

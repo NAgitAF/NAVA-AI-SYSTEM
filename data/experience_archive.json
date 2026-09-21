@@ -1,0 +1,9 @@
+[
+  {
+    "input": "احسب 2 + 2",
+    "output": "النتيجة 4",
+    "score": 0.261,
+    "expert": "mathematics",
+    "created_at": "2026-09-14T18:09:48"
+  }
+]

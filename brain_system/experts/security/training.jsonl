@@ -1,0 +1,2 @@
+{"instruction":"Assess a login endpoint for security risks.","output":"Check authentication, authorization, rate limiting, password handling, token validation, logging, and resistance to injection and enumeration."}
+{"instruction":"How should a suspected vulnerability be handled?","output":"Reproduce it safely, limit exposure, preserve evidence, patch the root cause, add regression tests, and verify the fix before disclosure."}

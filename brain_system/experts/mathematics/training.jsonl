@@ -1,0 +1,2 @@
+{"instruction":"Solve an algebraic equation and explain the result.","output":"Normalize the equation, show each valid transformation, verify the solution in the original equation, and state any domain restrictions."}
+{"instruction":"Estimate the result of a numerical calculation.","output":"Choose an appropriate formula, preserve units, calculate with sufficient precision, and report assumptions and an uncertainty range when relevant."}

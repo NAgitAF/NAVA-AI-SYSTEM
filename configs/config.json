@@ -1,0 +1,79 @@
+{
+    "system_prompt": "أنت NAVA، مساعد ذكي ومتقدم للذكاء الاصطناعي من تطوير نواف (Nava). مهمتك هي تقديم إجابات دقيقة، مفيدة، واحترافية باللغة العربية، مع الحفاظ على وضوح العبارة ومنطقية التسلسل.",
+    "brain_expansion": {
+        "lora_r": 8,
+        "lora_alpha": 16,
+        "target_modules": [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj"
+        ],
+        "lora_dropout": 0.05,
+        "auto_scale_rank": true,
+        "max_rank": 32,
+        "min_rank": 8,
+        "bias": "none"
+    },
+    "adaptive_scaling": {
+        "enabled": true,
+        "min_context_window": 1024,
+        "max_context_window": 4096,
+        "growth_step": 512,
+        "safe_memory_threshold_gb": 4.0,
+        "auto_expand_on_input_tokens": 1800
+    },
+    "training": {
+        "lightweight_mode": true,
+        "gradient_checkpointing": true,
+        "validation_split": 0.1,
+        "min_validation_rows": 5,
+        "logging_dir": "/home/nawaf/NAVA_HOME_VM_TOOL/systems/training_system/runs",
+        "enable_tensorboard": true,
+        "report_to": "tensorboard",
+        "eval_strategy": "epoch",
+        "learning_rate": 0.0001,
+        "num_train_epochs": 2,
+        "per_device_train_batch_size": 1,
+        "gradient_accumulation_steps": 8,
+        "max_seq_length": 512,
+        "save_total_limit": 2
+    },
+    "quality_control": {
+        "dedupe_threshold": 0.92,
+        "max_history_turns": 10,
+        "max_context_tokens": 2048
+    },
+    "agent_runtime": {
+        "enabled": true,
+        "enable_local_retrieval": true,
+        "enable_web_lookup": true,
+        "max_context_segments": 3,
+        "reasoning_mode": "agentic",
+        "web_timeout_seconds": 8,
+        "self_evaluation_enabled": true,
+        "self_evaluation_threshold": 0.7,
+        "memory_enabled": true,
+        "semantic_retrieval_enabled": true,
+        "semantic_similarity_threshold": 0.08,
+        "memory_limit": 30
+    },
+    "gpu_settings": {
+        "enable_cuda": true,
+        "max_vram_gb": 4.0,
+        "precision": "float16",
+        "gpu_device_id": 0
+    },
+    "cpu_settings": {
+        "cpu_threads": 4,
+        "low_cpu_mem_usage": true
+    },
+    "model_generation": {
+        "max_seq_length": 512,
+        "context_window": 2048,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "repetition_penalty": 1.1,
+        "do_sample": true
+    }
+}

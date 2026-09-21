@@ -1,0 +1,2 @@
+{"instruction":"Review this Python function for a resource leak and propose a fix.","output":"Inspect ownership of the resource, close it with a context manager, and add a regression test for the failure path."}
+{"instruction":"Design a small HTTP API with input validation.","output":"Define the request schema, validate at the boundary, return explicit status codes, and keep business logic separate from transport code."}

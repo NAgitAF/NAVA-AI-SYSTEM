@@ -1,0 +1,18 @@
+[
+  {
+    "topic": "احسب 2 + 2",
+    "fact": "احسب 2 + 2",
+    "source": "user",
+    "scope": "long_term",
+    "created_at": "2026-09-14 18:09:48",
+    "metadata": {}
+  },
+  {
+    "topic": "النتيجة 4",
+    "fact": "النتيجة 4",
+    "source": "assistant",
+    "scope": "long_term",
+    "created_at": "2026-09-14 18:09:48",
+    "metadata": {}
+  }
+]

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nava-systems"
+version = "0.1.0"
+description = "NAVA local AI systems runtime"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.setuptools]
+py-modules = ["api_server", "nava_architecture", "nava_chat", "nava_dashboard"]
+
+[tool.setuptools.packages.find]
+include = ["*_system", "brain_system*", "configs"]

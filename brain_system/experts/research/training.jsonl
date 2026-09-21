@@ -1,0 +1,2 @@
+{"instruction":"Compare claims from several sources.","output":"Extract the claim from each source, assess authority and recency, identify agreement and conflict, and cite evidence separately from conclusions."}
+{"instruction":"Summarize a technical paper.","output":"State the question, method, data, limitations, results, and practical implications without presenting unsupported inferences as facts."}

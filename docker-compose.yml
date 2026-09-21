@@ -1,0 +1,35 @@
+services:
+  nava:
+    build: .
+    environment:
+      NAVA_JWT_SECRET: ${NAVA_JWT_SECRET:?set NAVA_JWT_SECRET}
+      NAVA_JWT_ISSUER: ${NAVA_JWT_ISSUER:-nava}
+      NAVA_JWT_AUDIENCE: ${NAVA_JWT_AUDIENCE:-nava-api}
+    expose:
+      - "8765"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks: [internal]
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./tls:/etc/nginx/tls:ro
+    depends_on: [nava]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://127.0.0.1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks: [internal]
+networks:
+  internal:
+    driver: bridge

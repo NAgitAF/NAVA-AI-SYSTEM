@@ -1,0 +1,21 @@
+# === NAVA AI — الاعتماديات الأساسية ===
+torch
+transformers
+peft
+trl
+datasets
+accelerate
+sentencepiece
+
+# === واجهة الطرفية ===
+rich
+
+# === مراقبة النظام ===
+psutil
+
+# === استكشاف الويب ===
+requests
+
+# === الذاكرة الدلالية (اختياري/قوي) ===
+sentence-transformers>=2.6.0
+faiss-cpu>=1.8.0
