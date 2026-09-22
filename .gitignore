@@ -1,0 +1,42 @@
+# Python cache and tooling artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Environment files
+.env
+.env.*
+
+# Local ML & generated artifacts
+brain_system/seed_brain/*.safetensors
+brain_system/seed_brain/*.bin
+brain_system/seed_brain/*.pt
+brain_system/seed_brain/*.json
+brain_system/seed_brain/*.txt
+brain_system/seed_brain/.cache/
+brain_system/nava_tuned/
+
+# Local training outputs
+training_system/runs/
+training_system/temp_checkpoints/
+training_system/*.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+
+# Large model and cache files
+*.safetensors
+*.bin
+*.pt
+*.ckpt
+*.pyc
+
+# Ignore lock files that are generated locally only
+*.lock
