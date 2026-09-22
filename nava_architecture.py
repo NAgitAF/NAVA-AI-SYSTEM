@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from memory_system import MemoryManager
@@ -156,6 +157,19 @@ class NAVAArchitecture:
         self.experience_archive = ExperienceArchive()
         self.observability = ObservabilityCollector()
         self.expert_models = ExpertModelRegistry()
+        self._register_expert_models()
+
+    def _register_expert_models(self) -> None:
+        """Register expert model manifests for any trained or pending expert adapters."""
+        root = Path(__file__).resolve().parent
+        experts_dir = root / "brain_system" / "experts"
+        if not experts_dir.exists():
+            return
+        for manifest_path in sorted(experts_dir.glob("*/manifest.json")):
+            try:
+                self.expert_models.register_manifest(str(manifest_path), enabled=True)
+            except ValueError:
+                continue
 
     def register_tool(self, tool_name: str, allowed: bool = False, scope: str = "restricted") -> ToolPermission:
         permission = ToolPermission(tool_name=tool_name, allowed=allowed, scope=scope)
@@ -254,6 +268,13 @@ class NAVAAgentRuntime:
         intent_info = self.supervisor.analyze(user_input)
         expert = intent_info.get("expert", "general")
         selected_model = self.architecture.expert_models.resolve(expert)
+        if selected_model is None:
+            selected_model = {"expert": expert, "enabled": True, "status": "fallback_to_general", "model_path": self.architecture.state.current_model}
+        if not self.architecture.expert_models.is_trained(expert):
+            expert = "general"
+            intent_info["expert"] = expert
+            intent_info["intent"] = expert
+            selected_model = self.architecture.expert_models.resolve(expert) or {"expert": expert, "enabled": True, "status": "general_fallback"}
         task_id = f"task-{len(self.architecture.task_manager.tasks) + 1}"
         plan = self.architecture.task_planner.build_plan(user_input, intent_info)
         self.architecture.task_manager.start(task_id, plan)

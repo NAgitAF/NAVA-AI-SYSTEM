@@ -405,7 +405,7 @@ class SafetyFilter:
     def apply_refusal(self, response):
         if not response:
             return "لا يمكنني تنفيذ طلبات ضارة أو غير آمنة. أستطيع مساعدتك في أمور آمنة ومفيدة."
-        safe_refusal = "لا يمكنني المساعدة في طلبات ضارة أو غير آمنة. أستطيع مساعدتك في مواضيع آمنة مثل التعليم، التحليل، الكتابة، والبرمجة."
+        safe_refusal = "لا يمكنني المساعدة في طلبات ضارة أو غير آمنة. أستطيع مساعدتك في مواضيع آمنة مثل التعليم، التحليل، والبرمجة الآمنة."
         return safe_refusal
 
 
@@ -436,7 +436,35 @@ class NavaChatInterface:
         self.messages = []
         self.history_max_size = self.config.get("quality_control", {}).get("max_history_turns", 10)
 
-        console.print("[yellow][*] جاري تحميل عقل NAVA وقراءة الإعدادات المركزية ومعيار ChatML...[/yellow]")
+        self.model = None
+        self.tokenizer = None
+        self._load_runtime_model()
+
+    def _load_runtime_model(self):
+        seed_ok = os.path.isdir(self.model_dir) and os.path.isfile(os.path.join(self.model_dir, "config.json"))
+        adapter_ok = os.path.isdir(self.adapter_dir) and os.path.isfile(os.path.join(self.adapter_dir, "adapter_config.json"))
+        if not seed_ok:
+            raise FileNotFoundError(f"Model directory not found: {self.model_dir}")
+
+        if not os.path.isfile(os.path.join(self.model_dir, "tokenizer.json")) and not os.path.isfile(os.path.join(self.model_dir, "tokenizer_config.json")):
+            raise FileNotFoundError(f"Tokenizer files missing in {self.model_dir}")
+
+        for required in ("config.json", "tokenizer.json", "tokenizer_config.json"):
+            if required not in os.listdir(self.model_dir):
+                raise FileNotFoundError(f"Missing {required} in {self.model_dir}")
+
+        has_real_model = any(
+            os.path.isfile(os.path.join(self.model_dir, name)) and os.path.getsize(os.path.join(self.model_dir, name)) > 0
+            for name in ("model.safetensors", "pytorch_model.bin")
+        ) or any(
+            os.path.isfile(path) and os.path.getsize(path) > 0
+            for path in (self.model_dir + "/" + p for p in os.listdir(self.model_dir) if p.startswith("model-") and p.endswith(".safetensors"))
+        )
+
+        if not has_real_model:
+            raise FileNotFoundError(f"No real Qwen2 weights found in {self.model_dir}. Needs a real base model, not a placeholder.")
+
+        console.print("[yellow][*] جاري تحميل عقل NAVA الحقيقي من النموذج الأساسي و adapter ...[/yellow]")
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_dir)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -451,15 +479,23 @@ class NavaChatInterface:
             low_cpu_mem_usage=self.config.get("cpu_settings", {}).get("low_cpu_mem_usage", True)
         )
 
-        if os.path.exists(self.adapter_dir) and len(os.listdir(self.adapter_dir)) > 0:
+        has_real_adapter = any(
+            os.path.isfile(os.path.join(self.adapter_dir, name)) and os.path.getsize(os.path.join(self.adapter_dir, name)) > 0
+            for name in ("adapter_model.safetensors", "adapter_model.bin")
+        ) or any(
+            os.path.isfile(path) and os.path.getsize(path) > 0
+            for path in (self.adapter_dir + "/" + p for p in os.listdir(self.adapter_dir) if p.startswith("adapter_model-") and p.endswith(".safetensors"))
+        )
+
+        if adapter_ok and has_real_adapter:
             self.model = PeftModel.from_pretrained(base_model, self.adapter_dir)
-            console.print("[cyan][*] تم دمج طبقات الذاكرة المطورة بنجاح من: nava_tuned[/cyan]")
+            console.print("[cyan][*] تم تحميل LoRA adapter الحقيقي بنجاح.[/cyan]")
         else:
             self.model = base_model
-            console.print("[yellow][!] لم يتم العثور على طبقات مطورة، سيتم استخدام العقل الأساسي فقط.[/yellow]")
+            console.print("[yellow][!] adapter غير صالح أو فارغ، سيتم التشغيل على النموذج الأساسي فقط.[/yellow]")
 
         self.model.eval()
-        console.print("[bold green][+] NAVA جاهز ومستعد للحوار بمعيار ChatML يا نواف![/bold green]\n")
+        console.print("[bold green][+] NAVA جاهز ومستعد للحوار بالـ runtime الحقيقي.[/bold green]\n")
 
     def _trim_history(self, clean_user_input):
         """يحافظ على آخر أقسام المحادثة فقط لتقليل الضغط على السياق."""
@@ -604,10 +640,10 @@ class NavaChatInterface:
             context_text = "\n\n".join(context_blocks)
             user_message = (
                 "استخدم السياق التالي بدقة، حلل المعلومات، واستخرج الحقيقة قبل الإجابة. "
-                "إذا كان السياق غير كافٍ، قُل ذلك بوضوح ثم قدم أفضل إجابة معتمدًا على المعرفة المتاحة.\n\n"
+                "إذا كان السياق غير كافٍ، قُل ذلك بوضوح ثم قدم أفضل إجابة معتمدة على المعرفة المتاحة.\n\n"
                 f"السياق:\n{context_text}\n\nالسؤال:\n{user_query}"
             )
-            return [{"role": "system", "content": system_prompt + " .تعمل بطريقة تحليلية واسترجاعية: ابحث في السياق، حلل، ثم أجب بدقة بوضوح."}] + history_for_prompt + [{"role": "user", "content": user_message}]
+            return [{"role": "system", "content": system_prompt + " .تعمل بطريقة تحليلية واسترجاعية: ابحث في السياق، حلل، ثم أجب بدقة."}] + history_for_prompt + [{"role": "user", "content": user_message}]
         return [{"role": "system", "content": system_prompt}] + history_for_prompt + [{"role": "user", "content": user_query}]
 
     def _generate_answer(self, chat_payload):
@@ -699,7 +735,7 @@ class NavaChatInterface:
                     "- إذا كان السؤال يتطلب حساب أو استرجاع أو تحليل، استخدم الأدلة المتاحة. "
                     "- تجنب التكرار والردود الغامضة."
                 )
-                critique_payload = [{"role": "system", "content": self.system_prompt + " .أعد النظر في ردك، وقم بتحسينه لتحسين الدقة والوضوح."}] + history_for_prompt + [{"role": "user", "content": f"السؤال:\n{clean_user_input}\n\nالإجابة الحالية:\n{response}\n\nملاحظات التقييم:\n{evaluation['reason']}\n\n{critique_prompt}"}]
+                critique_payload = [{"role": "system", "content": self.system_prompt + " .أعد النظر في ردك، وقم بتحسينه لتحسين الدقة والوضوح."}] + history_for_prompt + [{"role": "user", "content": critique_prompt + "\n\nالسؤال:\n" + clean_user_input}]
                 response = self._generate_answer(critique_payload)
                 evaluation = self._evaluate_response(clean_user_input, response, context_blocks)
 
@@ -717,10 +753,11 @@ class NavaChatInterface:
     def generate_response(self, user_input):
         return self.run_agent_loop(user_input)
 
+
 def main():
     console.clear()
     console.print(Panel.fit(
-        "[bold cyan]NAVA Terminal Chat (ChatML Enabled) - واجهة المحادثة المباشرة[/bold cyan]\n\n"
+        "[bold cyan]NAVA Terminal Chat (Real Model Runtime) - واجهة المحادثة المباشرة[/bold cyan]\n\n"
         "[white]أوامر: [/white][yellow]/clear[/yellow] | [yellow]/status[/yellow] | [yellow]/correct[/yellow] | [yellow]/teach[/yellow] | [yellow]/exit[/yellow]",
         border_style="cyan"
     ))
@@ -730,14 +767,14 @@ def main():
     while True:
         try:
             user_input = Prompt.ask("\n[bold yellow]نواف[/bold yellow]")
-            
+
             if not user_input.strip():
                 continue
 
             if user_input.lower() == "/exit":
                 console.print("[cyan]في أمان الله يا نواف. تم إغلاق جلسة المحادثة.[/cyan]")
                 break
-            
+
             elif user_input.lower() == "/clear":
                 console.clear()
                 console.print("[green][+] تم مسح الشاشة وسجل المحادثة اللحظي.[/green]")
@@ -752,13 +789,12 @@ def main():
                 last_question = chat_system.messages[-2]["content"]
                 console.print(f"[yellow]السؤال الأخير:[/yellow] {last_question}")
                 console.print(f"[red]الجواب الخاطئ:[/red] {last_answer}")
-                
+
                 correct_answer = Prompt.ask("[green]أدخل الجواب الصحيح[/green]")
                 if not correct_answer.strip():
                     console.print("[red][!] لا يمكن حفظ تصحيح فارغ.[/red]")
                     continue
-                
-                # إرسال التصحيح لملف الجلسة الحالية (session_buffer) مباشرةً!
+
                 receive_from_list("Chat_Correction", last_question, correct_answer)
                 console.print(f"[green][+] تم إرسال التصحيح لجلسة البيانات. سيتم تدريب NAVA عليه قريباً.[/green]")
                 continue
@@ -769,14 +805,13 @@ def main():
                 if not instruction.strip():
                     console.print("[red][!] لا يمكن حفظ معلومة فارغة.[/red]")
                     continue
-                
+
                 console.print("[yellow]أدخل الرد الصحيح أو المعلومة التي يجب أن يحفظها NAVA:[/yellow]")
                 output = Prompt.ask("[bold green]الرد/المعلومة[/bold green]")
                 if not output.strip():
                     console.print("[red][!] لا يمكن حفظ رد فارغ.[/red]")
                     continue
-                
-                # إرسال التعلم لملف الجلسة الحالية (session_buffer) مباشرةً!
+
                 receive_from_list("Chat_Teaching", chat_system.remove_diacritics(instruction), chat_system.remove_diacritics(output))
                 console.print(f"[green][+] تم إرسال المعلومة لجلسة البيانات. سيتم تدريب NAVA عليها قريباً.[/green]")
                 continue
@@ -795,13 +830,12 @@ def main():
                 )
                 console.print(Panel(
                     status_text,
-                    title="[bold yellow]حالة النظام والإعدادات (ChatML)[/bold yellow]",
+                    title="[bold yellow]حالة النظام والإعدادات (Real Runtime)[/bold yellow]",
                     border_style="yellow"
                 ))
                 continue
 
-            # توليد وعرض رد NAVA
-            with console.status("[bold green]جاري التفكير والتوليد (ChatML)...[/bold green]", spinner="dots"):
+            with console.status("[bold green]جاري التفكير والتوليد على النموذج الحقيقي...[/bold green]", spinner="dots"):
                 reply = chat_system.generate_response(user_input)
 
             console.print(Panel(reply, title="[bold green]NAVA[/bold green]", border_style="green"))
@@ -811,6 +845,7 @@ def main():
             break
         except Exception as e:
             console.print(f"[red][!] حدث خطأ أثناء المعالجة: {e}[/red]")
+
 
 if __name__ == "__main__":
     main()
