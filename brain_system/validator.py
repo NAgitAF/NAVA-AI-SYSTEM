@@ -18,6 +18,28 @@ def _read_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def _has_real_model_weights(seed: Path) -> bool:
+    candidates = [
+        seed / "model.safetensors",
+        seed / "pytorch_model.bin",
+    ]
+    if any(path.is_file() and path.stat().st_size > 0 for path in candidates):
+        return True
+    shard_paths = sorted(seed.glob("model-*.safetensors"))
+    return any(path.is_file() and path.stat().st_size > 0 for path in shard_paths)
+
+
+def _has_real_adapter_weights(adapter: Path) -> bool:
+    candidates = [
+        adapter / "adapter_model.safetensors",
+        adapter / "adapter_model.bin",
+    ]
+    if any(path.is_file() and path.stat().st_size > 0 for path in candidates):
+        return True
+    shard_paths = sorted(adapter.glob("adapter_model-*.safetensors"))
+    return any(path.is_file() and path.stat().st_size > 0 for path in shard_paths)
+
+
 def validate_brain_artifacts(
     seed_dir: str | os.PathLike[str], adapter_dir: str | os.PathLike[str]
 ) -> dict[str, Any]:
@@ -26,16 +48,27 @@ def validate_brain_artifacts(
     adapter = Path(adapter_dir)
     config = _read_json(seed / "config.json")
     adapter_config = _read_json(adapter / "adapter_config.json")
-    required_seed = ("config.json", "tokenizer.json", "tokenizer_config.json", "model.safetensors")
-    required_adapter = ("adapter_config.json", "adapter_model.safetensors")
+
+    required_seed = ("config.json", "tokenizer.json", "tokenizer_config.json")
+    required_adapter = ("adapter_config.json",)
     missing_seed = [name for name in required_seed if not (seed / name).is_file()]
     missing_adapter = [name for name in required_adapter if not (adapter / name).is_file()]
-    if missing_seed or missing_adapter:
+
+    if missing_seed:
         raise ValueError({"missing_seed": missing_seed, "missing_adapter": missing_adapter})
+    if missing_adapter:
+        raise ValueError({"missing_seed": missing_seed, "missing_adapter": missing_adapter})
+
+    if not _has_real_model_weights(seed):
+        raise ValueError("seed_brain does not contain real model weights.")
+    if not _has_real_adapter_weights(adapter):
+        raise ValueError("nava_tuned does not contain a non-empty adapter weight file.")
+
     if config.get("model_type") != "qwen2" or "Qwen2ForCausalLM" not in config.get("architectures", []):
         raise ValueError("seed_brain is not a supported Qwen2 causal language model.")
     if adapter_config.get("peft_type") != "LORA" or adapter_config.get("task_type") != "CAUSAL_LM":
         raise ValueError("nava_tuned is not a causal-language LoRA adapter.")
+
     base_path = adapter_config.get("base_model_name_or_path")
     base_matches = bool(base_path) and (adapter / base_path).resolve() == seed.resolve()
     return {
