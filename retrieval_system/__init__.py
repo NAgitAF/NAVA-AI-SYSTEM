@@ -110,7 +110,13 @@ class SemanticRetriever:
 class EmbeddingRetriever:
     """Optional local embedding index with a deterministic lexical fallback."""
 
-    def __init__(self, model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", index_path: Optional[str] = None):
+    def __init__(
+        self,
+        model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        index_path: Optional[str] = None,
+        *,
+        allow_download: bool = False,
+    ):
         self.model_name = model_name
         self.index_path = index_path
         self.index: List[Dict[str, Any]] = []
@@ -119,7 +125,10 @@ class EmbeddingRetriever:
         try:
             sentence_transformers = importlib.import_module("sentence_transformers")
             SentenceTransformer = sentence_transformers.SentenceTransformer
-            self._model = SentenceTransformer(model_name)
+            self._model = SentenceTransformer(
+                model_name,
+                local_files_only=not allow_download,
+            )
             self.available = True
         except (ImportError, OSError, RuntimeError):
             self.available = False

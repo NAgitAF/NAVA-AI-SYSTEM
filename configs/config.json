@@ -56,7 +56,9 @@
         "memory_enabled": true,
         "semantic_retrieval_enabled": true,
         "semantic_similarity_threshold": 0.08,
-        "memory_limit": 30
+        "memory_limit": 30,
+        "semantic_model_path": "",
+        "allow_model_download": false
     },
     "gpu_settings": {
         "enable_cuda": true,

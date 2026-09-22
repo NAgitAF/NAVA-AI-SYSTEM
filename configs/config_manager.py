@@ -1,6 +1,9 @@
 import os
 import json
-import torch
+try:
+    import torch
+except ImportError:  # Core configuration must remain usable without ML packages.
+    torch = None
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
@@ -95,6 +98,8 @@ def get_default_config():
             "semantic_retrieval_enabled": True,
             "semantic_similarity_threshold": 0.08,
             "memory_limit": 30,
+            "semantic_model_path": "",
+            "allow_model_download": False,
         },
         "gpu_settings": {
             "enable_cuda": True,
@@ -199,6 +204,8 @@ def get_agent_runtime_settings():
         "semantic_retrieval_enabled": agent_cfg.get("semantic_retrieval_enabled", True),
         "semantic_similarity_threshold": agent_cfg.get("semantic_similarity_threshold", 0.08),
         "memory_limit": agent_cfg.get("memory_limit", 30),
+        "semantic_model_path": agent_cfg.get("semantic_model_path", ""),
+        "allow_model_download": agent_cfg.get("allow_model_download", False),
     }
 
 
@@ -266,9 +273,14 @@ def apply_hardware_limits():
     config = load_config()
 
     threads = config.get("cpu_settings", {}).get("cpu_threads", 4)
-    torch.set_num_threads(threads)
+    if torch is not None:
+        torch.set_num_threads(threads)
 
-    gpu_enabled = config.get("gpu_settings", {}).get("enable_cuda", True) and torch.cuda.is_available()
+    gpu_enabled = (
+        torch is not None
+        and config.get("gpu_settings", {}).get("enable_cuda", True)
+        and torch.cuda.is_available()
+    )
     device = "cuda" if gpu_enabled else "cpu"
 
     print(f"[*] [Config Manager] وضع التشغيل: {device.upper()} | خيوط المعالج: {threads}")

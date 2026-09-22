@@ -61,13 +61,21 @@ class MemoryManager:
         except Exception:
             self.faiss_available = False
 
-        try:
-            from sentence_transformers import SentenceTransformer
-            model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-            self.embedding_model = SentenceTransformer(model_name)
-            self.embedding_dim = self.embedding_model.get_sentence_embedding_dimension()
-        except Exception:
-            self.embedding_model = None
+        self.embedding_model = None
+        semantic_settings = get_agent_runtime_settings()
+        semantic_path = semantic_settings.get("semantic_model_path", "")
+        allow_download = semantic_settings.get("allow_model_download", False)
+        if semantic_path or allow_download:
+            try:
+                from sentence_transformers import SentenceTransformer
+                model_name = semantic_path or "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+                self.embedding_model = SentenceTransformer(
+                    model_name,
+                    local_files_only=not allow_download,
+                )
+                self.embedding_dim = self.embedding_model.get_sentence_embedding_dimension()
+            except (ImportError, OSError, ValueError):
+                self.embedding_model = None
 
         if self.entries:
             self._rebuild_vector_index()

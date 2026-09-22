@@ -191,6 +191,9 @@ docker compose up --build -d
   في `configs/config.json`.
 - يجب فصل بيانات التطوير عن بيانات الإنتاج، وتحديد مسارات SQLite وملفات
   التشغيل عبر إعدادات بيئية بدل الاعتماد على `os.getcwd()` في النشر النهائي.
+- لا يقوم runtime بتنزيل نماذج embeddings تلقائيًا. الاسترجاع الدلالي يعمل فقط
+  عند تحديد `agent_runtime.semantic_model_path` لمسار محلي، أو عند تفعيل
+  `agent_runtime.allow_model_download` صراحةً؛ الوضع الافتراضي محلي ومعجمي.
 
 ## 8. الاختبارات والتحقق الحالي
 
