@@ -5,6 +5,7 @@ peft
 trl
 datasets
 accelerate
+huggingface-hub
 sentencepiece
 
 # === واجهة الطرفية ===
