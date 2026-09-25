@@ -1,0 +1,38 @@
+[{"stream_name":"stderr","time":8.026735627,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.026846167,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.026856195,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.026862521,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.745750412,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.745796481,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.745803489,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.745808286,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":9.952598941,"data":"❌ لم يتم العثور على ملف باسم trainer.py أو train.py في مسار المشروع الرئيسي.\n"}
+,{"stream_name":"stderr","time":42.027135878,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":42.027197035,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":42.027203272,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":42.027507015,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":42.027529025,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":42.02824594,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":42.028292483,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":42.028299789,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":42.028305293,"data":"Exception encountered at \"In [2]\":\n"}
+,{"stream_name":"stderr","time":42.028310705,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":42.028318383,"data":"FileNotFoundError                         Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":42.028325516,"data":"/tmp/ipykernel_16/1606522596.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":42.028331683,"data":"      9 # 1. الدخول الفعلي لمجلد الروت الرئيسي للمشروع\n"}
+,{"stream_name":"stderr","time":42.028338355,"data":"     10 project_root = \"/kaggle/working/nawafnava/systems-nava-tool/SYSTEMS_NAVA__TOOL.\"\n"}
+,{"stream_name":"stderr","time":42.028344032,"data":"---\u003e 11 os.chdir(project_root)\n"}
+,{"stream_name":"stderr","time":42.028350013,"data":"     12 sys.path.insert(0, project_root)\n"}
+,{"stream_name":"stderr","time":42.028355752,"data":"     13 print(f\"📂 تم الدخول إلى مجلد الروت بنجاح: {os.getcwd()}\")\n"}
+,{"stream_name":"stderr","time":42.028361542,"data":"\n"}
+,{"stream_name":"stderr","time":42.028366563,"data":"FileNotFoundError: [Errno 2] No such file or directory: '/kaggle/working/nawafnava/systems-nava-tool/SYSTEMS_NAVA__TOOL.'\n"}
+,{"stream_name":"stderr","time":42.028372063,"data":"\n"}
+,{"stream_name":"stderr","time":44.666673003,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":44.666753733,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":44.843662016,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":44.843699886,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":45.555726121,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":45.917181618,"data":"[NbConvertApp] Writing 15258 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":48.716814125,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":49.683654176,"data":"[NbConvertApp] Writing 304277 bytes to __results__.html\n"}
+]
