@@ -5,7 +5,7 @@ from pathlib import Path
 
 from huggingface_hub import snapshot_download
 
-MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
+MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 TARGET_DIR = Path(__file__).resolve().parents[1] / "brain_system" / "seed_brain"
 
 
