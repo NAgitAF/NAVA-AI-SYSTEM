@@ -15,8 +15,6 @@ def main() -> None:
     snapshot_download(
         repo_id=MODEL_ID,
         local_dir=str(TARGET_DIR),
-        local_dir_use_symlinks=False,
-        trust_remote_code=True,
     )
 
     config_path = TARGET_DIR / "config.json"
