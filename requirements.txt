@@ -20,3 +20,5 @@ requests
 # === الذاكرة الدلالية (اختياري/قوي) ===
 sentence-transformers>=2.6.0
 faiss-cpu>=1.8.0
+
+huggingface-hub>=0.17.0
