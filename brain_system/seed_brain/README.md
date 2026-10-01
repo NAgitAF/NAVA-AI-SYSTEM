@@ -1,17 +1,19 @@
 ---
-license: other
-license_name: qwen-research
-license_link: https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/blob/main/LICENSE
+license: apache-2.0
+license_link: https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/blob/main/LICENSE
 language:
 - en
 pipeline_tag: text-generation
-base_model: Qwen/Qwen2.5-3B
+base_model: Qwen/Qwen2.5-7B
 tags:
 - chat
 library_name: transformers
 ---
 
-# Qwen2.5-3B-Instruct
+# Qwen2.5-7B-Instruct
+<a href="https://chat.qwenlm.ai/" target="_blank" style="margin: 2px;">
+    <img alt="Chat" src="https://img.shields.io/badge/%F0%9F%92%9C%EF%B8%8F%20Qwen%20Chat%20-536af5" style="display: inline-block; vertical-align: middle;"/>
+</a>
 
 ## Introduction
 
@@ -22,15 +24,16 @@ Qwen2.5 is the latest series of Qwen large language models. For Qwen2.5, we rele
 - **Long-context Support** up to 128K tokens and can generate up to 8K tokens.
 - **Multilingual support** for over 29 languages, including Chinese, English, French, Spanish, Portuguese, German, Italian, Russian, Japanese, Korean, Vietnamese, Thai, Arabic, and more. 
 
-**This repo contains the instruction-tuned 3B Qwen2.5 model**, which has the following features:
+**This repo contains the instruction-tuned 7B Qwen2.5 model**, which has the following features:
 - Type: Causal Language Models
 - Training Stage: Pretraining & Post-training
-- Architecture: transformers with RoPE, SwiGLU, RMSNorm, Attention QKV bias and tied word embeddings
-- Number of Parameters: 3.09B
-- Number of Paramaters (Non-Embedding): 2.77B
-- Number of Layers: 36
-- Number of Attention Heads (GQA): 16 for Q and 2 for KV
-- Context Length: Full 32,768 tokens and generation 8192 tokens
+- Architecture: transformers with RoPE, SwiGLU, RMSNorm, and Attention QKV bias
+- Number of Parameters: 7.61B
+- Number of Paramaters (Non-Embedding): 6.53B
+- Number of Layers: 28
+- Number of Attention Heads (GQA): 28 for Q and 4 for KV
+- Context Length: Full 131,072 tokens and generation 8192 tokens
+  - Please refer to [this section](#processing-long-texts) for detailed instructions on how to deploy Qwen2.5 for handling long texts.
 
 For more details, please refer to our [blog](https://qwenlm.github.io/blog/qwen2.5/), [GitHub](https://github.com/QwenLM/Qwen2.5), and [Documentation](https://qwen.readthedocs.io/en/latest/).
 
@@ -50,7 +53,7 @@ Here provides a code snippet with `apply_chat_template` to show you how to load 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_name = "Qwen/Qwen2.5-3B-Instruct"
+model_name = "Qwen/Qwen2.5-7B-Instruct"
 
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
@@ -82,6 +85,27 @@ generated_ids = [
 response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
 ```
 
+### Processing Long Texts
+
+The current `config.json` is set for context length up to 32,768 tokens.
+To handle extensive inputs exceeding 32,768 tokens, we utilize [YaRN](https://arxiv.org/abs/2309.00071), a technique for enhancing model length extrapolation, ensuring optimal performance on lengthy texts.
+
+For supported frameworks, you could add the following to `config.json` to enable YaRN:
+```json
+{
+  ...,
+  "rope_scaling": {
+    "factor": 4.0,
+    "original_max_position_embeddings": 32768,
+    "type": "yarn"
+  }
+}
+```
+
+For deployment, we recommend using vLLM. 
+Please refer to our [Documentation](https://qwen.readthedocs.io/en/latest/deployment/vllm.html) for usage if you are not familar with vLLM.
+Presently, vLLM only supports static YARN, which means the scaling factor remains constant regardless of input length, **potentially impacting performance on shorter texts**. 
+We advise adding the `rope_scaling` configuration only when processing long contexts is required.
 
 ## Evaluation & Performance
 
