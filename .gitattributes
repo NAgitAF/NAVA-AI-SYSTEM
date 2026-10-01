@@ -3,3 +3,4 @@ seed_brain/model-* filter=lfs diff=lfs merge=lfs -text
 *.bin filter=lfs diff=lfs merge=lfs -text
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
+brain_system/seed_brain/model-* filter=lfs diff=lfs merge=lfs -text
