@@ -1,19 +1,29 @@
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
 from huggingface_hub import snapshot_download
 
-MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
+DEFAULT_MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
 TARGET_DIR = Path(__file__).resolve().parents[1] / "brain_system" / "seed_brain"
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Download a Hugging Face causal language model for NAVA.")
+    parser.add_argument(
+        "--model-id",
+        default=DEFAULT_MODEL_ID,
+        help=f"Hugging Face repository ID (default: {DEFAULT_MODEL_ID})",
+    )
+    args = parser.parse_args()
+
     TARGET_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"[+] downloading {MODEL_ID} to {TARGET_DIR}")
+    print(f"[+] downloading {args.model_id} to {TARGET_DIR}")
+    print("[!] Larger models need substantially more RAM/VRAM; downloading does not guarantee they fit your hardware.")
     snapshot_download(
-        repo_id=MODEL_ID,
+        repo_id=args.model_id,
         local_dir=str(TARGET_DIR),
     )
 
